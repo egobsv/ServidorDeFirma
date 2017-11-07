@@ -29,12 +29,13 @@ https://localhost:8442/signserver/demo/
 
 Antes de usar estos ejemplos es necesario configurar los servicios usando los certificados de una Autoridad Certificadora. Para este ejemplo se generaron dos certificados P12, sello.p12 de la SubCA Servicios para firmar sellos de tiempo y  firmadorPDF.p12  de la SubCA Persona para firmar documentos PDF. Estos archivos están en la carpeta 'servicios'
 
+```
  	 CA Raíz
      ------ | --------
      |               |
 
 SubCA Personas     SubCA Servicios
-
+```
 
 ## Configurar Servicio de Sellado de Tiempo
 
