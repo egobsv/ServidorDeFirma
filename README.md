@@ -1,6 +1,6 @@
 ## Servidor de Firma y Sellado de Tiempo
 
-Estas son las instrucciones para instalar Signserver, un servidor de firma desatendida y sellado de tiempo (RFC-3161). Este servidor necesita usar certificados (P12, JKS) emitidos por una autoridad certificadora como EJBCA. Las instrucciones de instalación se crearon usando Debian 8. 
+Estas son las instrucciones para instalar [Signserver](https://www.signserver.org/), un servidor de firma desatendida y sellado de tiempo (RFC-3161). El servicio de firma desatendida permite aprovechar una API REST para firmar documentos de forma centralizada lo cual simplifica los procesos para los usuarios. Este servidor necesita usar certificados (P12, JKS) emitidos por una autoridad certificadora como [EJBCA](https://github.com/egobsv/certificadora). Las instrucciones de instalación se crearon usando Debian 8. 
 
 ## Requisitos
 
@@ -23,11 +23,11 @@ Estas son las instrucciones para instalar Signserver, un servidor de firma desat
 
 - La misma página esta disponible por acceso privado usando autenticación TLS, solo para navegadores que tengan instalado el certificado cliente desde https://[ip servidor]:8443/signserver/. 
 
-El sistema tiene varias paginas de prueba disponibles en:
+El sistema tiene varias páginas de prueba disponibles en:
 
 https://localhost:8442/signserver/demo/
 
-Antes de usar estos ejemplos es necesario configurar los servicios usando los certificados de una Autoridad Certificadora. Para este ejemplo se generaron dos certificados P12, sello.p12 de la SubCA Servicios para firmar sellos de tiempo y  firmadorPDF.p12  de la SubCA Persona para firmar documentos PDF. Estos archivos están en la carpeta 'servicios'
+Antes de usar estos ejemplos es necesario configurar los servicios usando los certificados de una Autoridad Certificadora. Para este ejemplo se generaron dos certificados P12: sello.p12 de la SubCA Servicios para sellos de tiempo y  firmadorPDF.p12  de la SubCA Personas para firmar documentos PDF. Estos archivos están en la carpeta 'servicios'
 
 ```
  	 CA Raíz
@@ -39,7 +39,7 @@ SubCA Personas     SubCA Servicios
 
 ## Configurar Servicio de Sellado de Tiempo
 
-Para configurar el servicio de Sello de tiempo primero es necesario crear un Crypto Token que utilice el archivo sello.p12. Puede usar una archivo/almacen de certificado de sellado de tiempo distinto y configurarlo dentro de sello-crypto.properties. Luego debemos crear y activar un proceso TSA. Los comandos necesarios se listan a continuación. 
+Para configurar el servicio de Sello de tiempo primero es necesario crear un Crypto Token que utilice el archivo sello.p12. Puede usar una archivo/almacén de certificado de sellado de tiempo distinto y configurarlo dentro de sello-crypto.properties. Luego debemos crear y activar un proceso TSA. Los comandos necesarios se listan a continuación. 
 
 ```
 su signer;
@@ -52,7 +52,7 @@ bin/signserver reload 2
 bin/signserver getstatus brief all
 ```
 
-Con esto tenemos activado el servicio de sellado de tiempo, para probarlo podemos usar OpenSSL:
+Con esto tenemos activado el servicio de sellado de tiempo y disponible para atender peticiones REST, para probarlo podemos usar OpenSSL como se muestra a continuación:
 
 ```
 touch datos.txt;
@@ -83,7 +83,8 @@ bin/signserver getstatus brief all;
 ```  
 
 En este punto ya puede probar el ejemplo de firma PDF desde https://localhost:8442/signserver/demo/pdfsign.jsp
-Este servicio de firma esta disponible como un servicio Web a través de llamadas REST POST y GET. Puede encontrar más información en https://localhost:8442/signserver/doc/manual/integration.html#Web_Server_Interface 
+
+Este servicio de firma está disponible ademas como un servicio Web a través de llamadas REST POST Puede encontrar más información en https://localhost:8442/signserver/doc/manual/integration.html#Web_Server_Interface 
 
 Para configurar otros servicios puede revisar los ejemplos dentro de /opt/signserver/doc/sample-configs/.
 
