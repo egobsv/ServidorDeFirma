@@ -38,7 +38,7 @@ SubCA Personas     SubCA Servicios
 
 ## Configurar Servicio de Sellado de Tiempo
 
-Para configurar el servicio de Sello de tiempo primero es necesario crear un Crypto Token que utilice el archivo sello.p12.  Luego debemos crear y activar un proceso TSA. Los  
+Para configurar el servicio de Sello de tiempo primero es necesario crear un Crypto Token que utilice el archivo sello.p12. Puede usar una archivo/almacen de certificado de sellado de tiempo distinto y configurarlo dentro de sello-crypto.properties. Luego debemos crear y activar un proceso TSA. Los comandos necesarios se listan a continuación. 
 
 ```
 su signer;
@@ -68,7 +68,7 @@ openssl ts -reply -in respuesta.tsr -text;
 
 ## Configurar Servicio de Firma de PDFs
 
-Para configurar el servicio de firma de PDFs primero es necesario crear un Crypto Token que utilice el archivo firmadorPDF.p12.  Luego debemos crear y activar un proceso que tienda peticiones de firma. La firma de archivos PDF incluye una imagen y un sello de tiempo, esto y otros valores se pueden configurar en las propiedades del servicio.
+Para configurar el servicio de firma de PDFs primero es necesario crear un Crypto Token que utilice el archivo firmadorPDF.p12 u otro almacén/certificado configurado dentro de pdf-crypto.properties.  Luego debemos crear y activar un proceso que atienda peticiones de firma usando el archivo pdfsigner.properties. La firma de archivos PDF incluye una imagen y un sello de tiempo, esto y otros valores se pueden configurar en las propiedades del servicio.
 
 ```
 su signer;
@@ -82,7 +82,9 @@ bin/signserver getstatus brief all;
 ```  
 
 En este punto ya puede probar el ejemplo de firma PDF desde https://localhost:8442/signserver/demo/pdfsign.jsp
+Este servicio de firma esta disponible como un servicio Web a través de llamadas REST POST y GET. Puede encontrar más información en https://localhost:8442/signserver/doc/manual/integration.html#Web_Server_Interface 
 
+Para configurar otros servicios puede revisar los ejemplos dentro de /opt/signserver/doc/sample-configs/.
 
 ## Licencia
 
