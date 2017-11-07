@@ -1,0 +1,14 @@
+batch
+/system-property=org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH:add(value=true)
+/system-property=org.apache.catalina.connector.CoyoteAdapter.ALLOW_BACKSLASH:add(value=true)
+/system-property=org.apache.catalina.connector.URI_ENCODING:add(value="UTF-8")
+/system-property=org.apache.catalina.connector.USE_BODY_ENCODING_FOR_QUERY_STRING:add(value=true)
+/subsystem=webservices:write-attribute(name=wsdl-host, value=jbossws.undefined.host)
+/subsystem=webservices:write-attribute(name=modify-wsdl-address, value=true)
+run-batch
+
+#MAIL SERVER (OPTIONAL)
+#/socket-binding-group=standard-sockets/remote-destination-outbound-socket-binding=ejbca-mail-smtp:add(port="993", host="my.mail.server")
+#/subsystem=mail/mail-session="java:/TsaMail":add(jndi-name=java:/TsaMail, from=noreply@mymail)
+#/subsystem=mail/mail-session="java:/TsaMail"/server=smtp:add(outbound-socket-binding-ref=ejbca-mail-smtp, tls=true, username=smtpuser, password=smtppassword)
+

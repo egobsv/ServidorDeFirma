@@ -1,0 +1,10 @@
+#MAKE SURE SERVER IS READY
+batch
+/interface=http:add(inet-address="0.0.0.0")
+/interface=httpspub:add(inet-address="0.0.0.0")
+/interface=httpspriv:add(inet-address="0.0.0.0")
+/subsystem=remoting/http-connector=http-remoting-connector:remove
+/subsystem=remoting/http-connector=http-remoting-connector:add(connector-ref="remoting",security-realm="ApplicationRealm")
+/socket-binding-group=standard-sockets/socket-binding=remoting:add(port="4447")
+/subsystem=undertow/server=default-server/http-listener=remoting:add(socket-binding=remoting)
+run-batch

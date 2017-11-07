@@ -1,0 +1,16 @@
+batch
+/socket-binding-group=standard-sockets/socket-binding=httpspriv:add(port="8443",interface="httpspriv")
+/core-service=management/security-realm=TLSRealm:add()
+/core-service=management/security-realm=TLSRealm/server-identity=ssl:add(keystore-path="keystore/keystore.jks", keystore-relative-to="jboss.server.config.dir", keystore-password="secreto", alias="llaveSellado")
+/core-service=management/security-realm=TLSRealm/authentication=truststore:add(keystore-path="keystore/truststore.jks", keystore-relative-to="jboss.server.config.dir", keystore-password="secreto")
+
+#Acceso con autenticacion mutua
+/subsystem=undertow/server=default-server/https-listener=httpspriv:add(socket-binding="httpspriv", security-realm="TLSRealm", verify-client=REQUIRED)
+
+#Acceso sin autenticacion mutua
+/socket-binding-group=standard-sockets/socket-binding=httpspub:add(port="8442",interface="httpspub")
+/subsystem=undertow/server=default-server/https-listener=httpspub:add(socket-binding="httpspub", security-realm="TLSRealm")
+
+#Desactivar SSL3 - https://tools.ietf.org/html/rfc7568
+/core-service=management/security-realm=TLSRealm/server-identity=ssl/:write-attribute(name=enabled-protocols,value=[TLSv1.1, TLSv1.2])
+run-batch

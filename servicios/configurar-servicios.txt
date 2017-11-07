@@ -1,0 +1,21 @@
+su signer;
+cd /opt/signserver;
+bin/signserver getstatus brief all;
+bin/signserver setproperties servicios/sello-crypto.properties
+bin/signserver setproperties servicios/timestamp.properties
+bin/signserver reload 1
+bin/signserver reload 2
+bin/signserver getstatus brief all
+
+##Probar Servicio de sellado
+bin/signclient timestamp http://localhost:8080/signserver/process?workerName=TimeStampSigner
+
+# firmar una solicitud de sellado 
+# https://www.ietf.org/rfc/rfc3161.txt
+
+touch datos.txt;
+echo "Probando el servicio de sellado de Teimpo" >> datos.txt;
+openssl ts -query -data datos.txt -cert -sha256 -no_nonce -out solicitud.tsq;
+cat solicitud.tsq | curl -s -S -H 'Content-Type: application/timestamp-query' \
+ --data-binary @- http://localhost:8080/signserver/process?workerName=TimeStampSigner -o respuesta.tsr;
+openssl ts -reply -in respuesta.tsr -text;

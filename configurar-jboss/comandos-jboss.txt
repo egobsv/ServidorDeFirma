@@ -1,0 +1,27 @@
+#Revisar que JBOSS termina de procesar cada comando, abrir dos consolas de comandos:
+
+#Consola 1
+#Pare verificar ejecución de comandos
+tail -f /opt/jboss/standalone/log/server.log
+
+#Consola 2
+#PREPARAR JBOSS
+sudo -u jboss /opt/jboss/bin/jboss-cli.sh --connect --file=/opt/scripts/conf-jboss01.cli;
+sudo -u jboss /opt/jboss/bin/jboss-cli.sh --connect --command=:reload;
+sudo -u jboss /opt/jboss/bin/jboss-cli.sh --connect --file=/opt/scripts/conf-jboss02.cli;
+sudo -u jboss /opt/jboss/bin/jboss-cli.sh --connect --command=:reload;
+sudo -u jboss /opt/jboss/bin/jboss-cli.sh --connect --file=/opt/scripts/conf-jboss03.cli;
+sudo -u jboss /opt/jboss/bin/jboss-cli.sh --connect --command=:reload;
+sudo -u jboss /opt/jboss/bin/jboss-cli.sh --connect --file=/opt/scripts/conf-jboss04.cli;
+sudo -u jboss /opt/jboss/bin/jboss-cli.sh --connect --command=:reload;
+sudo -u jboss /opt/jboss/bin/jboss-cli.sh --connect --file=/opt/scripts/conf-jboss05.cli;
+sudo -u jboss /opt/jboss/bin/jboss-cli.sh --connect --command=":shutdown(restart=true)";
+
+#INSTALAR APLICACION
+su signer;
+cd /opt/signserver;
+ ant clean deploy;
+exit;
+
+##ABRIR NAVEGADOR 
+#https://localhost:8442/signserver

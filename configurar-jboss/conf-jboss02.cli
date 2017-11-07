@@ -1,0 +1,10 @@
+/subsystem=datasources/jdbc-driver=h2:remove
+batch
+module add --name=org.postgresql --slot=main --resources=/opt/scripts/postgresql-42.0.0.jar --dependencies=javax.api,javax.transaction.api
+/subsystem=datasources/jdbc-driver=postgres:add(driver-name="postgres",driver-module-name="org.postgresql",driver-class-name=org.postgresql.Driver)
+run-batch
+data-source add --name=signserverds --connection-url="jdbc:postgresql://127.0.0.1:5432/signserver" \
+	--driver-name="postgres" --jndi-name="java:/SignServerDS" --use-ccm=true --user-name="signserver" \
+	--password="signserver" --validate-on-match=true --background-validation=false --prepared-statements-cache-size=50 \
+	--share-prepared-statements=true --min-pool-size=5 --max-pool-size=150 --pool-prefill=true \
+	--transaction-isolation=TRANSACTION_READ_COMMITTED --check-valid-connection-sql="select 1;"
