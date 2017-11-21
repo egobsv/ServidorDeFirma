@@ -28,7 +28,7 @@
     groupadd -r jboss;
     useradd -r -g jboss -d /opt/jboss -s /sbin/nologin jboss;
     useradd -r -g jboss -d /opt/signserver -s /bin/bash signer;
-    echo 'signer:signer' | chpasswd;
+    echo 'signer:signer' | sudo chpasswd;
     chown -R jboss:jboss /opt/jboss;
     chown -R signer:jboss /opt/signserver;
     chmod 775 -R  /opt/jboss /opt/signserver;
