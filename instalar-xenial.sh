@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
     timedatectl set-timezone America/El_Salvador;
-    hostnamectl set-hostname sellado;   
-    echo "deb http://http.debian.net/debian jessie-backports main" >> /etc/apt/sources.list;
-    apt-get update ;
-    apt-get -y install -t jessie-backports  openjdk-8-jre-headless ca-certificates-java;
-    apt-get -y install openjdk-8-jdk ntp ant ant-optional unzip ntp postgresql-9.4 postgresql-client-9.4 unzip;    
+    hostnamectl set-hostname sellado; 
+    apt-get update;     
+    apt-get -y install  openjdk-8-jre-headless ca-certificates-java;
+    apt-get -y install openjdk-8-jdk ant ant-optional unzip ntp postgresql-9.5 postgresql-client-9.5 unzip;
+  
     mkdir -p  /etc/jboss; cd /opt/;
     unzip -q /opt/signserver-ce-4.0.0-bin.zip;
     unzip -q /opt/jboss-eap-7.0.0.zip;
     mv /opt/jboss-eap-7.0 /opt/jboss;
     mv /opt/signserver-ce-4.0.0 /opt/signserver;
+
     cp *.properties /opt/signserver/conf/;
     mv servicios /opt/signserver/;
 
