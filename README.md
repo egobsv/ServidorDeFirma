@@ -1,6 +1,6 @@
 ## Servidor de Firma y Sellado de Tiempo
 
-Estas son las instrucciones para instalar [Signserver](https://www.signserver.org/), un servidor de firma desatendida y sellado de tiempo (RFC-3161). El servicio de firma desatendida permite aprovechar una API REST para firmar documentos de forma centralizada lo cual simplifica los procesos para los usuarios. Este servidor necesita usar certificados (P12, JKS) emitidos por una autoridad certificadora como [EJBCA](https://github.com/egobsv/certificadora). Las instrucciones de instalación se crearon usando Debian 8. 
+Estas son las instrucciones para instalar [Signserver](https://www.signserver.org/), un servidor de firma desatendida y sellado de tiempo (RFC-3161). El servicio de firma desatendida permite aprovechar una API REST para firmar documentos de forma centralizada lo cual simplifica los procesos para los usuarios. Este servidor necesita usar certificados (P12, JKS) emitidos por una autoridad certificadora como [EJBCA](https://github.com/egobsv/certificadora). Las instrucciones de instalación pueden ejecutarse desde Ubuntu Xenial o Debian Jessie. 
 
 ## Requisitos
 
@@ -15,7 +15,7 @@ Estas son las instrucciones para instalar [Signserver](https://www.signserver.or
  
 - Edite el nombre de dominio de su servidor modificando el archivo crearCertificados.sh. Estos certificados se usaran para ofrecer HTTPS, no se usaran para firmar documentos.
 
-- Prepare su servidor ejecutando los comandos desde la consola (instalar-jessie.sh ).  
+- Prepare su servidor ejecutando los comandos desde la consola, seleccione el archivo que corresponda a su sistema operativo (instalar-jessie.sh o instalar-xenial.sh).  
 
 - Ingrese a la carpeta 'configurar-jboss' y habra el archivo comandos-jboss.txt. Ejecute estos comandos uno a uno, debe asegurarse de que JBoss procesa cada comando con éxito uno a uno. 
 
