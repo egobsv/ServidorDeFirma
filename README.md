@@ -1,7 +1,8 @@
 
+
 ## Servidor de Firma y Sellado de Tiempo
 
-Estas son las instrucciones para instalar un servidor de firma electrónica de documentos y sellado de tiempo. El servidor utiliza el software libre Signserver y tiene [múltiples servicios disponibles](https://www.signserver.org/features.html) dentro de un servidor de firma desatendida y sellado de tiempo (RFC-3161). El servicio de firma desatendida permite aprovechar una API REST para firmar documentos de forma centralizada lo cual simplifica los procesos para los usuarios. Este servidor necesita usar certificados (P12, JKS) emitidos por una autoridad certificadora como [EJBCA](https://github.com/egobsv/certificadora). Las instrucciones de instalación pueden ejecutarse desde Ubuntu Xenial o Debian Jessie. 
+Estas son las instrucciones para instalar un servidor de firma electrónica de documentos y sellado de tiempo. El servidor utiliza el software libre Signserver y tiene [múltiples servicios disponibles](https://www.signserver.org/features.html) dentro de un servidor de firma desatendida y sellado de tiempo (RFC-3161). El servicio de firma desatendida permite aprovechar una API HTTP para firmar documentos de forma centralizada lo cual simplifica los procesos para los usuarios. Este servidor necesita usar certificados (P12, JKS) emitidos por una autoridad certificadora como [EJBCA](https://github.com/egobsv/certificadora). Las instrucciones de instalación pueden ejecutarse desde Ubuntu Xenial o Debian Jessie. 
 
 ### Requisitos
 
@@ -41,8 +42,32 @@ El siguiente paso es configurar los servicios usando los certificados de una Aut
 
 SubCA Personas     SubCA Servicios
 ```
+## Servicio de Firma de PDFs
 
-### Configurar Servicio de Sellado de Tiempo
+Para configurar el servicio de firma de PDFs primero es necesario crear un Crypto Token que utilice el archivo firmadorPDF.p12 u otro almacén/certificado configurado dentro de pdf-crypto.properties.  Luego debemos crear y activar un proceso que atienda peticiones de firma usando el archivo pdfsigner.properties. La firma de archivos PDF incluye una imagen y un sello de tiempo, esto y otros valores se pueden configurar en las propiedades del servicio.
+
+```
+su signer;
+cd /opt/signer;
+bin/signserver getstatus brief all;
+bin/signserver setproperties servicios/pdf-crypto.properties;
+bin/signserver setproperties servicios/pdfsigner.properties;
+bin/signserver reload 3;
+bin/signserver reload 4;
+bin/signserver getstatus brief all;
+```  
+Este servicio de firma está disponible a través de llamadas HTTP POST como se describe en la [documentación de la API](https://www.signserver.org/doc/current/manual/integration.html#Web_Server_Interface). Por ejemplo:
+```
+curl -i -H 'Content-Type: Application/x-www-form-urlencoded' --data-binary @documento-para-firmar.pdf -X POST http://localhost:8080/signserver/process?workerName=PDFSigner -o documento-firmado.pdf
+```
+El servicio responde con el archivo 'documento-firmado.pdf', este es el PDF firmado, puede ver la firma usando Acrobat Reader. Para comprobar la firma, necesita [configurar la validación de firma digital en Acrobat Reader](https://help.adobe.com/es_ES/acrobat/standard/using/WS396794562021d52e-4a2d930c12b348f892b-8000.html).  La imagen y apariencia de la firma puede modificarse en la configuración del servicio en servicios/pdfsigner.properties.
+
+En este punto ya puede probar el ejemplo de firma PDF desde https://[ip servidor]:8442/signserver/demo/pdfsign.jsp
+
+Para configurar otros servicios puede revisar los ejemplos dentro de /opt/signserver/doc/sample-configs/.
+
+
+### Servicio de Sellado de Tiempo
 
 Para configurar el servicio de Sello de tiempo primero es necesario crear un Crypto Token que utilice el archivo sello.p12. Puede usar una archivo/almacén de certificado de sellado de tiempo distinto y configurarlo dentro de sello-crypto.properties. Luego debemos crear y activar un proceso TSA. Los comandos necesarios se listan a continuación. 
 
@@ -57,7 +82,7 @@ bin/signserver reload 2
 bin/signserver getstatus brief all
 ```
 
-Con esto tenemos activado el servicio de sellado de tiempo y disponible para atender peticiones REST, para probarlo podemos usar OpenSSL como se muestra a continuación:
+Con esto tenemos activado el servicio de sellado de tiempo y disponible para atender peticiones HTTP POST , para probarlo podemos usar OpenSSL como se muestra a continuación:
 
 ```
 touch datos.txt;
@@ -65,33 +90,12 @@ touch datos.txt;
 echo "Probando el servicio de sellado de Teimpo" >> datos.txt;
 openssl ts -query -data datos.txt -cert -sha256 -no_nonce -out solicitud.tsq;
 
-cat solicitud.tsq | curl -s -S -H 'Content-Type: application/timestamp-query' \
+cat solicitud.tsq | curl -s -S -H 'Content-Type: Application/timestamp-query' \
  --data-binary @- http://localhost:8080/signserver/process?workerName=TimeStampSigner -o respuesta.tsr;
 
 ##Leer Respuesta sellada
 openssl ts -reply -in respuesta.tsr -text;
 ```
-
-## Configurar Servicio de Firma de PDFs
-
-Para configurar el servicio de firma de PDFs primero es necesario crear un Crypto Token que utilice el archivo firmadorPDF.p12 u otro almacén/certificado configurado dentro de pdf-crypto.properties.  Luego debemos crear y activar un proceso que atienda peticiones de firma usando el archivo pdfsigner.properties. La firma de archivos PDF incluye una imagen y un sello de tiempo, esto y otros valores se pueden configurar en las propiedades del servicio.
-
-```
-su signer;
-cd /opt/signer;
-bin/signserver getstatus brief all;
-bin/signserver setproperties servicios/pdf-crypto.properties;
-bin/signserver setproperties servicios/pdfsigner.properties;
-bin/signserver reload 3;
-bin/signserver reload 4;
-bin/signserver getstatus brief all;
-```  
-
-En este punto ya puede probar el ejemplo de firma PDF desde https://[ip servidor]:8442/signserver/demo/pdfsign.jsp
-
-Este servicio de firma está disponible ademas como un servicio Web a través de llamadas REST POST como se describe en la [documentación de la API](https://www.signserver.org/doc/current/manual/integration.html#Web_Server_Interface).
-
-Para configurar otros servicios puede revisar los ejemplos dentro de /opt/signserver/doc/sample-configs/.
 
 ### URL de servicios
 A continuación crearemos URL de servicio más amigables. Para esto usaremos NGINX como proxy inverso.
@@ -99,14 +103,19 @@ A continuación crearemos URL de servicio más amigables. Para esto usaremos NGI
 apt-get install nginx-light
 ```
 Editar la configuración dentro de  /etc/nginx/sites-enabled/default, y agregar los siguientes bloques:
-```
+```  
        location /sello {
           proxy_pass http://localhost:8080/signserver/process?workerName=TimeStampSigner;
-           proxy_read_timeout 30s;
+          proxy_read_timeout 30s;
+          #tamaño máximo de POST
+          client_max_body_size 5M;
         }
-               location /firmar-pdf {
+       
+       location /firmar-pdf {
           proxy_pass http://localhost:8080/signserver/process?workerName=PDFSigner;
-           proxy_read_timeout 30s;
+          proxy_read_timeout 30s;
+          #tamaño máximo de POST
+          client_max_body_size 5M;
         }
 ```
 Después de reiniciar el servicio de NGINX, podremos consumir servicios  usando el nuevo URL:
