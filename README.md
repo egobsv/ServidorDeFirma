@@ -44,7 +44,25 @@ SubCA Personas     SubCA Servicios
 ```
 ## Servicio de Firma de PDFs
 
-Para configurar el servicio de firma de PDFs primero es necesario crear un Crypto Token que utilice el archivo firmadorPDF.p12 u otro almacén/certificado configurado dentro de pdf-crypto.properties.  Luego debemos crear y activar un proceso que atienda peticiones de firma usando el archivo pdfsigner.properties. La firma de archivos PDF incluye una imagen y un sello de tiempo, esto y otros valores se pueden configurar en las propiedades del servicio.
+Para configurar el servicio de firma de PDFs primero es necesario crear un Crypto Token que utilice el archivo firmadorPDF.p12 u otro almacén/certificado. Dentro del archivo pdf-crypto.properties modifique estas variables segun corresponda:
+```
+WORKERGENID1.NAME= NOMBRE-CRYPTO-TOKEN
+WORKERGENID1.KEYSTORETYPE=PKCS12
+WORKERGENID1.KEYSTOREPATH=/ruta/archivo/p12
+WORKERGENID1.KEYSTOREPASSWORD=contraseña
+```
+
+Luego debemos crear y activar un proceso que atienda peticiones de firma. Dentro del archivo pdfsigner.properties modifique estas variables segun corresponda: 
+```
+WORKERGENID1.NAME= NOMBRE-PROCESO-FIRMADOR
+WORKERGENID1.CRYPTOTOKEN= NOMBRE-CRYPTO-TOKEN
+WORKERGENID1.DEFAULTKEY=[usuario/CN del certificado]
+WORKERGENID1.REASON= [Descripción de la firma]
+WORKERGENID1.VISIBLE_SIGNATURE_CUSTOM_IMAGE_BASE64=[imagen/logo de firma]
+WORKERGENID1.TSA_WORKER=[Nombre del Servicio de Sellado de Tiempo]
+```
+
+A continuación ejecute los siguientes comandos, asegurese de usar el número de proceso que corresponda (en lugar de 3 y 4) de acuerdo a la imformación provista por el comando 'bin/signserver getstatus brief all'
 
 ```
 su signer;
