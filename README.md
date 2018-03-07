@@ -42,9 +42,11 @@ El siguiente paso es configurar los servicios usando los certificados de una Aut
 
 SubCA Personas     SubCA Servicios
 ```
-## Servicio de Firma de PDFs
 
-Para configurar el servicio de firma de PDFs primero es necesario crear un Crypto Token que utilice el archivo firmadorPDF.p12 u otro almacén/certificado. Dentro del archivo pdf-crypto.properties modifique estas variables segun corresponda:
+### Servicio de Sellado de Tiempo
+
+Para configurar el servicio de Sello de tiempo primero es necesario crear un Crypto Token que utilice el archivo sello.p12. Puede usar una archivo/almacén de certificado de sellado de tiempo distinto y configurarlo dentro de sello-crypto.properties modificando los siguientes valores:
+
 ```
 WORKERGENID1.NAME= NOMBRE-CRYPTO-TOKEN
 WORKERGENID1.KEYSTORETYPE=PKCS12
@@ -52,42 +54,15 @@ WORKERGENID1.KEYSTOREPATH=/ruta/archivo/p12
 WORKERGENID1.KEYSTOREPASSWORD=contraseña
 ```
 
-Luego debemos crear y activar un proceso que atienda peticiones de firma. Dentro del archivo pdfsigner.properties modifique estas variables segun corresponda: 
+Luego debemos crear y activar un proceso que atienda peticiones de Sello de Tiempo. Dentro del archivo timestamp.properties modifique estas variables según corresponda: 
 ```
-WORKERGENID1.NAME= NOMBRE-PROCESO-FIRMADOR
+WORKERGENID1.NAME= NOMBRE-PROCESO-SELLO
 WORKERGENID1.CRYPTOTOKEN= NOMBRE-CRYPTO-TOKEN
 WORKERGENID1.DEFAULTKEY=[usuario/CN del certificado]
-WORKERGENID1.REASON= [Descripción de la firma]
-WORKERGENID1.VISIBLE_SIGNATURE_CUSTOM_IMAGE_BASE64=[imagen/logo de firma]
-WORKERGENID1.TSA_WORKER=[Nombre del Servicio de Sellado de Tiempo]
+WORKERGENID1.TSA=[DN de la Autoridad de Sello]
 ```
 
-A continuación ejecute los siguientes comandos, asegurese de usar el número de proceso que corresponda (en lugar de 3 y 4) de acuerdo a la imformación provista por el comando 'bin/signserver getstatus brief all'
-
-```
-su signer;
-cd /opt/signer;
-bin/signserver getstatus brief all;
-bin/signserver setproperties servicios/pdf-crypto.properties;
-bin/signserver setproperties servicios/pdfsigner.properties;
-bin/signserver reload 3;
-bin/signserver reload 4;
-bin/signserver getstatus brief all;
-```  
-Este servicio de firma está disponible a través de llamadas HTTP POST como se describe en la [documentación de la API](https://www.signserver.org/doc/current/manual/integration.html#Web_Server_Interface). Por ejemplo:
-```
-curl -i -H 'Content-Type: Application/x-www-form-urlencoded' --data-binary @documento-para-firmar.pdf -X POST http://localhost:8080/signserver/process?workerName=PDFSigner -o documento-firmado.pdf
-```
-El servicio responde con el archivo 'documento-firmado.pdf', este es el PDF firmado, puede ver la firma usando Acrobat Reader. Para comprobar la firma, necesita [configurar la validación de firma digital en Acrobat Reader](https://help.adobe.com/es_ES/acrobat/standard/using/WS396794562021d52e-4a2d930c12b348f892b-8000.html).  La imagen y apariencia de la firma puede modificarse en la configuración del servicio en servicios/pdfsigner.properties.
-
-En este punto ya puede probar el ejemplo de firma PDF desde https://[ip servidor]:8442/signserver/demo/pdfsign.jsp
-
-Para configurar otros servicios puede revisar los ejemplos dentro de /opt/signserver/doc/sample-configs/.
-
-
-### Servicio de Sellado de Tiempo
-
-Para configurar el servicio de Sello de tiempo primero es necesario crear un Crypto Token que utilice el archivo sello.p12. Puede usar una archivo/almacén de certificado de sellado de tiempo distinto y configurarlo dentro de sello-crypto.properties. Luego debemos crear y activar un proceso TSA. Los comandos necesarios se listan a continuación. 
+Luego debemos crear y activar un proceso TSA. A continuación ejecute los siguientes comandos, asegurese de usar el número de proceso que corresponda (en lugar de 1 y 2) de acuerdo a la imformación provista por el comando 'bin/signserver getstatus brief all':
 
 ```
 su signer;
@@ -114,6 +89,50 @@ cat solicitud.tsq | curl -s -S -H 'Content-Type: Application/timestamp-query' \
 ##Leer Respuesta sellada
 openssl ts -reply -in respuesta.tsr -text;
 ```
+
+
+## Servicio de Firma de PDFs
+
+Para configurar el servicio de firma de PDFs primero es necesario crear un Crypto Token que utilice el archivo firmadorPDF.p12 u otro almacén/certificado. Dentro del archivo pdf-crypto.properties modifique estas variables segun corresponda:
+```
+WORKERGENID1.NAME= NOMBRE-CRYPTO-TOKEN
+WORKERGENID1.KEYSTORETYPE=PKCS12
+WORKERGENID1.KEYSTOREPATH=/ruta/archivo/p12
+WORKERGENID1.KEYSTOREPASSWORD=contraseña
+```
+
+Luego debemos crear y activar un proceso que atienda peticiones de firma. Dentro del archivo pdfsigner.properties modifique estas variables según corresponda: 
+```
+WORKERGENID1.NAME= NOMBRE-PROCESO-FIRMADOR
+WORKERGENID1.CRYPTOTOKEN= NOMBRE-CRYPTO-TOKEN
+WORKERGENID1.DEFAULTKEY=[usuario/CN del certificado]
+WORKERGENID1.REASON= [Descripción de la firma]
+WORKERGENID1.VISIBLE_SIGNATURE_CUSTOM_IMAGE_BASE64=[imagen/logo de firma]
+WORKERGENID1.TSA_WORKER=[Nombre del Servicio de Sellado de Tiempo]
+```
+
+A continuación ejecute los siguientes comandos, asegurese de usar el número de proceso que corresponda (en lugar de 3 y 4) de acuerdo a la imformación provista por el comando 'bin/signserver getstatus brief all':
+
+```
+su signer;
+cd /opt/signer;
+bin/signserver getstatus brief all;
+bin/signserver setproperties servicios/pdf-crypto.properties;
+bin/signserver setproperties servicios/pdfsigner.properties;
+bin/signserver reload 3;
+bin/signserver reload 4;
+bin/signserver getstatus brief all;
+```  
+Este servicio de firma está disponible a través de llamadas HTTP POST como se describe en la [documentación de la API](https://www.signserver.org/doc/current/manual/integration.html#Web_Server_Interface). Por ejemplo:
+```
+curl -i -H 'Content-Type: Application/x-www-form-urlencoded' --data-binary @documento-para-firmar.pdf -X POST http://localhost:8080/signserver/process?workerName=PDFSigner -o documento-firmado.pdf
+```
+El servicio responde con el archivo 'documento-firmado.pdf', este es el PDF firmado, puede ver la firma usando Acrobat Reader. Para comprobar la firma, necesita [configurar la validación de firma digital en Acrobat Reader](https://help.adobe.com/es_ES/acrobat/standard/using/WS396794562021d52e-4a2d930c12b348f892b-8000.html).  La imagen y apariencia de la firma puede modificarse en la configuración del servicio en servicios/pdfsigner.properties.
+
+En este punto ya puede probar el ejemplo de firma PDF desde https://[ip servidor]:8442/signserver/demo/pdfsign.jsp
+
+Para configurar otros servicios puede revisar los ejemplos dentro de /opt/signserver/doc/sample-configs/.
+
 
 ### URL de servicios
 A continuación crearemos URL de servicio más amigables. Para esto usaremos NGINX como proxy inverso.
