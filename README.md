@@ -66,7 +66,7 @@ Luego debemos crear y activar un proceso TSA. A continuación ejecute los siguie
 
 ```
 su signer;
-cd /opt/signer;
+cd /opt/signserver;
 bin/signserver getstatus brief all;
 bin/signserver setproperties servicios/sello-crypto.properties
 bin/signserver setproperties servicios/timestamp.properties
@@ -115,7 +115,7 @@ A continuación ejecute los siguientes comandos, asegurese de usar el número de
 
 ```
 su signer;
-cd /opt/signer;
+cd /opt/signserver;
 bin/signserver getstatus brief all;
 bin/signserver setproperties servicios/pdf-crypto.properties;
 bin/signserver setproperties servicios/pdfsigner.properties;
